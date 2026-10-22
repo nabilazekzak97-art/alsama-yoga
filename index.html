@@ -125,6 +125,20 @@ textarea{width:100%;font:inherit;color:var(--ink);background:var(--surface);bord
 .motd{background:var(--brand);color:var(--brand-ink);border:none}
 .motd p{font-family:var(--display);font-size:1.15rem;line-height:1.6}
 #confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:20}
+.pts{margin-inline-start:auto;display:inline-flex;align-items:center;gap:4px;background:var(--brand-soft);color:var(--brand);font-weight:700;border-radius:999px;padding:4px 12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pts::before{content:"★"}
+.rank{display:flex;flex-direction:column;gap:8px}
+.rank .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.rank .score{font-family:var(--display);font-size:2.4rem;line-height:1;color:var(--brand);font-variant-numeric:tabular-nums}
+.rank .title{font-family:var(--display);font-size:1.2rem}
+.toasts{position:fixed;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;z-index:30;padding-inline:16px}
+.toast{background:var(--ink);color:var(--bg);font-weight:700;padding:8px 16px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.toast b{color:var(--brand)}
+@media (prefers-reduced-motion:no-preference){.toast{animation:pop 2.6s ease forwards}@keyframes pop{0%{opacity:0;transform:translateY(16px) scale(.9)}10%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}}
+.earned{font-family:var(--display);font-size:1.6rem;color:var(--brand)}
+.ladder{display:flex;gap:4px}
+.ladder span{flex:1;font-size:.7rem;text-align:center;color:var(--muted);padding-top:6px;border-top:4px solid var(--line)}
+.ladder span.on{color:var(--brand);border-color:var(--brand);font-weight:700}
 @media (prefers-reduced-motion:no-preference){.view{animation:in .25s ease-out}@keyframes in{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}}
 </style>
 
@@ -292,7 +306,24 @@ let S={poses:{},hw:{},days:{},secs:0};
 try{const r=localStorage.getItem("yoga-y5-oct");if(r)S=Object.assign(S,JSON.parse(r));}catch(e){}
 function save(){try{localStorage.setItem("yoga-y5-oct",JSON.stringify(S));}catch(e){}}
 const ps=i=>S.poses[i]||(S.poses[i]={});
-S.days=S.days||{};S.secs=S.secs||0;
+S.days=S.days||{};S.secs=S.secs||0;S.pts=S.pts||0;S.awarded=S.awarded||{};
+
+/* ---------- points ---------- */
+const RANKS=[[0,"مبتدئ"],[100,"نشيط"],[300,"قوي"],[600,"بطل"],[1000,"نجم اليوغا"]];
+function rankOf(p){let r=0;RANKS.forEach((x,i)=>{if(p>=x[0])r=i;});return r;}
+function toast(html){let box=document.querySelector(".toasts");if(!box){box=document.createElement("div");box.className="toasts";box.setAttribute("aria-live","polite");document.body.appendChild(box);}
+  const t=document.createElement("div");t.className="toast";t.innerHTML=html;box.appendChild(t);setTimeout(()=>t.remove(),2700);}
+/* key = award once only (quiz answers, lesson bonus). No key = every time (doing a pose). */
+function award(n,reason,key){
+  if(key){if(S.awarded[key])return 0;S.awarded[key]=1;}
+  const before=rankOf(S.pts);S.pts+=n;save();
+  setTimeout(()=>toast(`<b>+${AR(n)}</b> ${esc(reason)}`),50);
+  const after=rankOf(S.pts);
+  if(after>before)setTimeout(()=>{toast(`رتبة جديدة: <b>${RANKS[after][1]}</b>!`);beep(988,150);beep(1319,250,.17);},900);
+  document.querySelectorAll(".pts").forEach(e=>e.textContent=AR(S.pts));
+  return n;}
+function lessonBonus(){LESSONS.forEach((L,k)=>{if(L.poses.every(i=>(S.poses[i]||{}).done))award(50,"خلّصت الدرس "+AR(k+1),"L"+k);});}
+function dailyBonus(){if(!S.days[todayKey()])return award(10,"أول تمرين اليوم");return 0;}
 
 /* ---------- motivation ---------- */
 const todayKey=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
@@ -332,7 +363,17 @@ const AR=n=>String(n).replace(/\d/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
 function poseStatus(i){const p=S.poses[i]||{};if(p.done)return["نفّذتها","ok"];if(p.contraDone&&p.useDone)return["جاهزة للتنفيذ","br"];if(p.contraDone||p.useDone)return["بلّشت",""];return["جديدة",""];}
 function lessonProgress(L){return L.poses.filter(i=>(S.poses[i]||{}).done).length;}
 
-function topbar(label,backTo){return `<div class="top"><button class="back" data-go="${backTo}">→ رجوع</button><span class="t">${esc(label)}</span></div>`;}
+function topbar(label,backTo){return `<div class="top"><button class="back" data-go="${backTo}">→ رجوع</button><span class="t">${esc(label)}</span><span class="pts" title="نقاطك">${AR(S.pts)}</span></div>`;}
+function rankCard(){const r=rankOf(S.pts),nx=RANKS[r+1];
+  return `<section class="card rank"><div class="row"><span class="eyebrow">نقاطك</span><span class="chip br">${RANKS[r][1]}</span></div>
+  <div class="row"><span class="score">${AR(S.pts)}</span><span class="small muted">${nx?`باقي ${AR(nx[0]-S.pts)} نقطة لرتبة «${nx[1]}»`:"وصلت لأعلى رتبة!"}</span></div>
+  ${nx?`<div class="bar"><i style="width:${(S.pts-RANKS[r][0])/(nx[0]-RANKS[r][0])*100}%"></i></div>`:""}
+  <div class="ladder">${RANKS.map((x,i)=>`<span class="${i<=r?"on":""}">${x[1]}</span>`).join("")}</div>
+  <details class="small"><summary>كيف بجمع نقاط؟</summary><ul class="contra-list" style="margin-top:6px">
+  <li>كل مرة بتنفّذ وضعية مع العدّاد: ١٠ نقاط + نقطة عن كل ٥ ثواني.</li>
+  <li>عرفت كل الموانع من أول مرة: ١٠ نقاط.</li><li>عرفت الاستخدام من أول مرة: ١٠ نقاط.</li>
+  <li>أول تمرين بكل يوم: ١٠ نقاط.</li><li>خلّصت كل وضعيات الدرس: ٥٠ نقطة.</li>
+  <li>كل جواب صح بالواجب من أول مرة: ٥ نقاط.</li></ul></details></section>`;}
 
 function breathCard(open){
   return `<details class="card breath" ${open?"open":""}><summary>${BREATH.name}</summary>
@@ -353,6 +394,7 @@ function home(){
     <div class="bar" aria-label="التقدّم"><i style="width:${done/total*100}%"></i></div>
     <span class="small muted">${AR(done)} من ${AR(total)} وضعيات منفّذة</span>
   </header>
+  ${rankCard()}
   <section class="card motd"><span class="small" style="opacity:.85;font-weight:700">رسالة اليوم</span><p>${esc(DAILY[new Date().getDate()%DAILY.length])}</p></section>
   <div class="stats">
     <div><b>${AR(streak())}</b><span>أيام ورا بعض</span></div>
@@ -440,7 +482,7 @@ function pose(i,k){
     <span class="eyebrow">الموانع</span>
     <ul class="contra-list">${P.contra.map(c=>`<li>${esc(c)}</li>`).join("")}</ul>
   </section>
-  ${celebrate===i?`<section class="card celebrate"><span class="big">✓</span><h2>${pick(PRAISE)}</h2><p>خلّصت <b>${esc(P.name)}</b> لمدة ${AR(st.lastSecs||0)} ثانية.</p>${next!==undefined?`<p class="small">يلّا عالوضعية اللي بعدها!</p>`:`<p class="small">خلّصت آخر وضعية بالدرس!</p>`}</section>`:""}
+  ${celebrate===i?`<section class="card celebrate"><span class="big">✓</span><h2>${pick(PRAISE)}</h2><span class="earned">+${AR(st.lastPts||0)} نقطة</span><p>خلّصت <b>${esc(P.name)}</b> لمدة ${AR(st.lastSecs||0)} ثانية. مجموعك صار ${AR(S.pts)}.</p>${next!==undefined?`<p class="small">يلّا عالوضعية اللي بعدها!</p>`:`<p class="small">خلّصت آخر وضعية بالدرس!</p>`}</section>`:""}
   <section class="card timer" id="timer"><span class="eyebrow">عدّاد التمرين</span>
     <div class="durs" role="group" aria-label="المدة">${[20,30,45,60,90].map(d=>`<button data-dur="${d}" aria-pressed="${d===(st.dur||[30,45,60][levelSel])}">${AR(d)} ث</button>`).join("")}</div>
     <div class="ring" id="ring"><svg viewBox="0 0 200 200"><circle class="track" cx="100" cy="100" r="88"/><circle class="prog" id="prog" cx="100" cy="100" r="88" stroke-dasharray="552.9" stroke-dashoffset="0"/></svg>
@@ -454,13 +496,18 @@ function pose(i,k){
   </div>`;
 
   app.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{const idx=+b.dataset.c;const s=st.contraSel||(st.contraSel=[]);const at=s.indexOf(idx);at>=0?s.splice(at,1):s.push(idx);save();pose(i,k);});
-  app.querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>{st.useSel=+b.dataset.u;st.useDone=true;save();pose(i,k);});
+  app.querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>{st.useSel=+b.dataset.u;st.useDone=true;
+    if(!S.awarded["u"+i]){S.awarded["u"+i]=1;if(b.dataset.ok==="1")award(10,"عرفت ليش منستعمل التمرين");}
+    save();pose(i,k);});
   app.querySelectorAll("[data-lv]").forEach(b=>b.onclick=()=>{levelSel=+b.dataset.lv;pose(i,k);});
   const act=a=>app.querySelector(`[data-act="${a}"]`);
-  if(act("checkC"))act("checkC").onclick=()=>{st.contraDone=true;save();pose(i,k);};
+  if(act("checkC"))act("checkC").onclick=()=>{st.contraDone=true;
+    const s=st.contraSel||[];const perfect=cOpts.every(([o,idx])=>o.ok===s.includes(idx));
+    if(!S.awarded["c"+i]){S.awarded["c"+i]=1;if(perfect)award(10,"عرفت كل الموانع");}
+    save();pose(i,k);};
   if(act("retryC"))act("retryC").onclick=()=>{st.contraDone=false;st.contraSel=[];st.done=false;save();pose(i,k);};
   if(act("retryU"))act("retryU").onclick=()=>{st.useDone=false;st.useSel=null;st.done=false;save();pose(i,k);};
-  if(act("done"))act("done").onclick=()=>{st.done=true;logPractice(0);save();pose(i,k);};
+  if(act("done"))act("done").onclick=()=>{dailyBonus();st.done=true;logPractice(0);award(5,"نفّذت "+P.name);lessonBonus();save();pose(i,k);};
 
   /* timer */
   const tc=document.getElementById("timer");if(!tc)return;
@@ -471,7 +518,8 @@ function pose(i,k){
     tc.querySelectorAll("[data-dur]").forEach(x=>x.setAttribute("aria-pressed",x===b));draw(dur,"جاهز؟");});
   const setDurDisabled=v=>tc.querySelectorAll("[data-dur]").forEach(x=>x.disabled=v);
   const finish=()=>{stopTimer();beep(880,180);beep(1175,260,.22);buzz([120,80,200]);
-    st.done=true;st.lastSecs=dur;logPractice(dur);celebrate=i;save();confetti();pose(i,k);
+    const bonus=dailyBonus();const got=award(10+Math.round(dur/5),"نفّذت "+P.name);
+    st.done=true;st.lastSecs=dur;st.lastPts=got+bonus;logPractice(dur);lessonBonus();celebrate=i;save();confetti();pose(i,k);
     const c=document.querySelector(".celebrate");c&&c.scrollIntoView({block:"center",behavior:"smooth"});};
   const run=()=>{T.end=Date.now()+T.left*1000;T.state="run";$("tStart").textContent="إيقاف مؤقت";
     let lastMot=-1;
@@ -524,7 +572,10 @@ function hw(k){
    <span class="chip br" style="align-self:flex-start">${AR(scored.filter(Boolean).length)} صح من ${AR(nObj)}</span></div>
    ${body}
    <button class="btn ghost" data-go="lesson:${k}">رجوع عالدرس</button></div>`;
-  app.querySelectorAll("[data-h]").forEach(b=>b.onclick=()=>{const [n,j]=b.dataset.h.split(":").map(Number);ans[n]=j;save();const y=scrollY;hw(k);scrollTo(0,y);});
+  app.querySelectorAll("[data-h]").forEach(b=>b.onclick=()=>{const [n,j]=b.dataset.h.split(":").map(Number);ans[n]=j;
+    const q=Q[n],correct=q.t==="tf"?(q.a?0:1):q.a,key="h"+L.id+"-"+n;
+    if(!S.awarded[key]){S.awarded[key]=1;if(j===correct)award(5,"جواب صح");}
+    save();const y=scrollY;hw(k);scrollTo(0,y);});
   app.querySelectorAll("[data-hr]").forEach(b=>b.onclick=()=>{delete ans[+b.dataset.hr];save();const y=scrollY;hw(k);scrollTo(0,y);});
   app.querySelectorAll("[data-hs]").forEach(b=>b.onclick=()=>{const n=+b.dataset.hs;const ta=app.querySelector(`[data-ht="${n}"]`);ans[n]={text:ta.value,shown:true};save();const y=scrollY;hw(k);scrollTo(0,y);});
   app.querySelectorAll("[data-ht]").forEach(t=>t.oninput=()=>{const n=+t.dataset.ht;ans[n]=Object.assign(ans[n]||{},{text:t.value});save();});
