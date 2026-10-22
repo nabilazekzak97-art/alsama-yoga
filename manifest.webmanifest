@@ -1,0 +1,31 @@
+{
+ "name": "تحضير اليوغا – معاهد السماء",
+ "short_name": "يوغا",
+ "description": "تحضير وضعيات اليوغا: الموانع، الاستخدام، طريقة الأداء وعدّاد التمرين.",
+ "lang": "ar",
+ "dir": "rtl",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "portrait",
+ "background_color": "#f7f3f6",
+ "theme_color": "#d81b7a",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}
