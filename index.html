@@ -138,6 +138,14 @@ textarea{width:100%;font:inherit;color:var(--ink);background:var(--surface);bord
 .earned{font-family:var(--display);font-size:1.6rem;color:var(--brand)}
 .ladder{display:flex;gap:4px}
 .ladder span{flex:1;font-size:.7rem;text-align:center;color:var(--muted);padding-top:6px;border-top:4px solid var(--line)}
+.lb{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.lb li{display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:12px;background:var(--sunk)}
+.lb li.me{background:var(--brand-soft);outline:2px solid var(--brand)}
+.lb .pos{font-family:var(--display);font-size:1.2rem;text-align:center}
+.lb .who{display:flex;flex-direction:column;min-width:0;line-height:1.4}
+.lb .who b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb .sc{font-family:var(--display);font-size:1.3rem;color:var(--brand);font-variant-numeric:tabular-nums}
+input:focus-visible{outline:3px solid var(--brand);outline-offset:1px}
 .ladder span.on{color:var(--brand);border-color:var(--brand);font-weight:700}
 @media (prefers-reduced-motion:no-preference){.view{animation:in .25s ease-out}@keyframes in{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}}
 </style>
@@ -321,7 +329,20 @@ function award(n,reason,key){
   const after=rankOf(S.pts);
   if(after>before)setTimeout(()=>{toast(`رتبة جديدة: <b>${RANKS[after][1]}</b>!`);beep(988,150);beep(1319,250,.17);},900);
   document.querySelectorAll(".pts").forEach(e=>e.textContent=AR(S.pts));
+  sync();
   return n;}
+/* ---------- class scoreboard (Google Sheet web app) ---------- */
+const SCORE_URL="https://script.google.com/macros/s/AKfycbzhjXOKcvudrTrOINXCskhSQLZdI3K3-TOLffkVLYkf4BXvnddzfFRszEMtvfocVMAIbA/exec";
+const hasBoard=/^https:\/\/script\.google\.com\//.test(SCORE_URL);
+if(!S.sid){S.sid=Date.now().toString(36)+Math.random().toString(36).slice(2,8);save();}
+let syncT=null;
+function syncNow(){
+  if(!hasBoard||!S.name)return;
+  const done=POSES.filter((_,i)=>(S.poses[i]||{}).done).length;
+  const body=JSON.stringify({id:S.sid,name:S.name,group:S.group||"",points:S.pts,rank:RANKS[rankOf(S.pts)][1],done,minutes:Math.ceil(S.secs/60),streak:streak()});
+  try{fetch(SCORE_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body}).catch(()=>{});}catch(e){}
+}
+function sync(){clearTimeout(syncT);syncT=setTimeout(syncNow,1500);}
 function lessonBonus(){LESSONS.forEach((L,k)=>{if(L.poses.every(i=>(S.poses[i]||{}).done))award(50,"خلّصت الدرس "+AR(k+1),"L"+k);});}
 function dailyBonus(){if(!S.days[todayKey()])return award(10,"أول تمرين اليوم");return 0;}
 
@@ -365,7 +386,7 @@ function lessonProgress(L){return L.poses.filter(i=>(S.poses[i]||{}).done).lengt
 
 function topbar(label,backTo){return `<div class="top"><button class="back" data-go="${backTo}">→ رجوع</button><span class="t">${esc(label)}</span><span class="pts" title="نقاطك">${AR(S.pts)}</span></div>`;}
 function rankCard(){const r=rankOf(S.pts),nx=RANKS[r+1];
-  return `<section class="card rank"><div class="row"><span class="eyebrow">نقاطك</span><span class="chip br">${RANKS[r][1]}</span></div>
+  return `<section class="card rank"><div class="row"><span class="eyebrow">نقاط ${esc(S.name||"")}</span><span class="chip br">${RANKS[r][1]}</span></div>
   <div class="row"><span class="score">${AR(S.pts)}</span><span class="small muted">${nx?`باقي ${AR(nx[0]-S.pts)} نقطة لرتبة «${nx[1]}»`:"وصلت لأعلى رتبة!"}</span></div>
   ${nx?`<div class="bar"><i style="width:${(S.pts-RANKS[r][0])/(nx[0]-RANKS[r][0])*100}%"></i></div>`:""}
   <div class="ladder">${RANKS.map((x,i)=>`<span class="${i<=r?"on":""}">${x[1]}</span>`).join("")}</div>
@@ -373,7 +394,8 @@ function rankCard(){const r=rankOf(S.pts),nx=RANKS[r+1];
   <li>كل مرة بتنفّذ وضعية مع العدّاد: ١٠ نقاط + نقطة عن كل ٥ ثواني.</li>
   <li>عرفت كل الموانع من أول مرة: ١٠ نقاط.</li><li>عرفت الاستخدام من أول مرة: ١٠ نقاط.</li>
   <li>أول تمرين بكل يوم: ١٠ نقاط.</li><li>خلّصت كل وضعيات الدرس: ٥٠ نقطة.</li>
-  <li>كل جواب صح بالواجب من أول مرة: ٥ نقاط.</li></ul></details></section>`;}
+  <li>كل جواب صح بالواجب من أول مرة: ٥ نقاط.</li></ul></details>
+  <div class="btns">${hasBoard?`<button class="btn" data-go="board">لائحة الأبطال</button>`:""}<button class="btn ghost" data-go="name">غيّر الاسم</button></div></section>`;}
 
 function breathCard(open){
   return `<details class="card breath" ${open?"open":""}><summary>${BREATH.name}</summary>
@@ -383,7 +405,40 @@ function breathCard(open){
 }
 
 /* ---------- views ---------- */
+function nameForm(editing){
+  app.innerHTML=`<div class="view" style="display:flex;flex-direction:column;gap:18px">
+  ${editing?topbar("اسمك","home"):`<header class="hero"><div class="logo"><img src="${IMG.logo}" alt="معاهد السماء"></div><span class="eyebrow">قسم اليوغا · المستوى الخامس</span></header>`}
+  <form class="card" id="nf" style="gap:14px"><h1>${editing?"غيّر اسمك":"أهلا فيك!"}</h1>
+    <p class="muted">${editing?"":"اكتب اسمك لتطلع نقاطك عند المعلّمة وبلائحة الأبطال."}</p>
+    <label class="kv" for="nm"><b>الاسم الكامل</b></label>
+    <input id="nm" required maxlength="60" autocomplete="name" value="${esc(S.name||"")}" placeholder="مثلًا: ريم حسن" style="font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:10px">
+    <label class="kv" for="gr"><b>المجموعة (إذا في)</b></label>
+    <input id="gr" maxlength="30" value="${esc(S.group||"")}" placeholder="مثلًا: أ" style="font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:10px">
+    <button class="btn" type="submit">${editing?"حفظ":"يلّا نبلّش"}</button></form></div>`;
+  const f=document.getElementById("nf");
+  f.onsubmit=e=>{e.preventDefault();const n=document.getElementById("nm").value.trim();if(!n)return;
+    S.name=n;S.group=document.getElementById("gr").value.trim();save();syncNow();home();scrollTo(0,0);};
+}
+
+async function board(){
+  app.innerHTML=`<div class="view" style="display:flex;flex-direction:column;gap:14px">${topbar("لائحة الأبطال","home")}
+   <h1>لائحة الأبطال</h1><div id="bl" class="card"><p class="muted">عم نجيب النقاط…</p></div></div>`;
+  const bl=document.getElementById("bl");
+  if(!hasBoard){bl.innerHTML=`<p class="muted">اللائحة مش شغّالة بهالنسخة.</p>`;return;}
+  syncNow();
+  try{
+    const r=await fetch(SCORE_URL+"?t="+Date.now());const list=await r.json();
+    if(!document.getElementById("bl"))return;
+    if(!list.length){bl.innerHTML=`<p class="muted">لسّا ما حدا جمع نقاط. كن الأوّل!</p>`;return;}
+    const medal=["🥇","🥈","🥉"];
+    bl.innerHTML=`<ol class="lb">${list.map((s,i)=>{const me=s.name===S.name&&String(s.group||"")===String(S.group||"");
+      return `<li class="${me?"me":""}"><span class="pos">${medal[i]||AR(i+1)}</span><span class="who"><b>${esc(s.name)}${me?" (إنت)":""}</b><span class="small muted">${esc(s.rank||"")}${s.group?" · "+esc(s.group):""}</span></span><span class="sc">${AR(s.points)}</span></li>`;}).join("")}</ol>`;
+  }catch(e){if(document.getElementById("bl"))bl.innerHTML=`<p class="muted">ما قدرنا نجيب اللائحة. تأكّد إنك عالإنترنت وجرّب كمان مرة.</p>`;}
+}
+
 function home(){
+  if(!S.name){nameForm(false);return;}
+  syncNow();
   const total=POSES.length,done=POSES.filter((_,i)=>(S.poses[i]||{}).done).length;
   app.innerHTML=`<div class="view" style="display:flex;flex-direction:column;gap:18px">
   <header class="hero"><div class="logo"><img src="${IMG.logo}" alt="معاهد السماء"></div>
@@ -585,7 +640,7 @@ function hw(k){
 function go(r,keepScroll){
   stopTimer();celebrate=null;
   const [v,a,b]=r.split(":");
-  if(v==="lesson")lesson(+a);else if(v==="pose"){if(!keepScroll)levelSel=1;pose(+a,+b);}else if(v==="hw")hw(+a);else home();
+  if(v==="board")board();else if(v==="name")nameForm(true);else if(v==="lesson")lesson(+a);else if(v==="pose"){if(!keepScroll)levelSel=1;pose(+a,+b);}else if(v==="hw")hw(+a);else home();
   if(!keepScroll)scrollTo(0,0);
 }
 app.addEventListener("click",e=>{const t=e.target.closest("[data-go]");if(t)go(t.dataset.go);});
