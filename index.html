@@ -87,6 +87,8 @@ details[open] summary::after{content:"−"}
 .btns{display:flex;gap:10px} .btns .btn{flex:1}
 .photo{background:#fff;border-radius:var(--r);overflow:hidden;border:1px solid var(--line)}
 .photo img{display:block;width:100%;max-height:340px;object-fit:contain}
+.photo video{display:block;width:100%;max-height:420px;background:#000}
+.lock{opacity:.55}
 .kv{display:flex;flex-direction:column;gap:8px}
 .kv div{display:grid;grid-template-columns:auto 1fr;gap:10px}
 .kv b{color:var(--brand);white-space:nowrap}
@@ -244,7 +246,7 @@ const POSES=[
   levels:["أداء الحركة بمدى حركي قصير دون رفع الركبة للأعلى بشكل كامل.","فتح الركبة بزاوية قائمة كاملة مع التحكم الكامل بالشهيق والزفير.","وضع شريط مقاومة مرن حول الفخذين لزيادة قوة التحمل والتحدي."],
   contra:["الإصابات الحادة في مفصل الورك أو الحوض.","التهابات المفاصل المتقدمة في الركبة أو الفخذ."],
   distract:["آلام حادة في الكتفين تمنع رفع الذراعين للأعلى.","ارتفاع ضغط الدم غير المستقر."],useD:[4,9]},
- {name:"التفاف الجذع",img:"p9",
+ {name:"التفاف الجذع",img:"p9",video:"videos/torso-twist.mp4",
   scenario:"عاد الحمّال سالم إلى منزله مشتكيًا من تيبّس شديد وآلام في منطقة الجذع والخصر بسبب رفع الأثقال والأكياس الثقيلة طوال اليوم.",
   steps:["الوقوف باستقامة وثبات مع إبقاء القدمين متوازيتين وثني المرفقين أمام الصدر.","مع الشهيق: أخذ نفس عميق وتثبيت الركبتين إلى الأمام دون تدوير الساقين.","مع الزفير: تدوير الجزء العلوي من الجسم والجذع ببطء نحو اليمين واليسار.","الاستمرار في تبديل الاتجاه بسلاسة ثم العودة إلى وضعية البداية."],
   benefit:"تخفيف تيبّس الظهر والخصر الناتج عن الجلوس أو العمل الطويل.",
@@ -253,7 +255,7 @@ const POSES=[
   levels:["أداء الدوران بمدى حركة قصير وببطء شديد مع ثبات كامل للقدمين.","الأداء الأساسي الصحيح بالتبديل السلس بين الجانبين بمدى طبيعي.","زيادة سرعة وسعة الدوران مع إبقاء الذراعين مرفوعتين بثبات."],
   contra:["وجود إصابات حادة أو جراحات حديثة في العمود الفقري أو أسفل الظهر.","التهاب المفاصل الحاد في منطقة الورك أو الحوض."],
   distract:["إصابة حادة في المعصم.","آلام حادة في الكتفين تمنع رفع الذراعين للأعلى."],useD:[6,4]},
- {name:"الخطوات الجانبية مع فتح الذراعين",img:"p10",
+ {name:"الخطوات الجانبية مع فتح الذراعين",img:"p10",video:"videos/side-steps.mp4",
   scenario:"عاد الحداد محمود إلى المنزل يشتكي من إجهاد شديد في جسمه وضيق في التنفس وضعف في اللياقة بعد يوم عمل طويل في الورشة. قال له ابنه طارق: هناك حركة تعلّمتها في اليوغا والرياضة تساعد على تنشيط الدورة الدموية وتحريك الساقين والذراعين بمرونة.",
   steps:["الوقوف باستقامة مع ضم القدمين وإسناد الذراعين بجانب الجسم.","مع الشهيق: إخراج القدم اليمنى إلى الجانب ورفع الذراعين للأعلى وتشبيك الكفين فوق الرأس.","مع الزفير: إعادة القدم اليمنى إلى المنتصف وخفض الذراعين إلى جانبي الجسم.","تكرار الحركة بالقدم اليسرى للجانب الآخر ثم العودة لوضعية البداية."],
   benefit:"تحسين التوافق الحركي والتوازن بين جانبي الجسم.",
@@ -262,7 +264,7 @@ const POSES=[
   levels:["خطوة جانبية صغيرة مع رفع الذراعين لمستوى الكتفين.","الأداء الأساسي بخطوة جانبية واسعة ورفع الذراعين فوق الرأس.","زيادة سرعة التبديل بين الجانبين مع الحفاظ على التوازن والاستقامة."],
   contra:["وجود إجهاد حاد أو إصابة حديثة في مفصل الكاحل أو الركبة.","آلام حادة في الكتفين تمنع رفع الذراعين للأعلى."],
   distract:["فتق البطن أو ضعف عضلات الجدار البطني الشديد.","إصابات حادة في فقرات الرقبة."],useD:[5,7]},
- {name:"القرفصاء مع التمدد الجانبي",img:"p11",
+ {name:"القرفصاء مع التمدد الجانبي",img:"p11",video:"videos/squat-reach.mp4",
   scenario:"عاد محمود إلى البيت بعد يوم عمل شاق في أعمال البناء، وكان يشعر بإجهاد شديد وتصلّب في الجزء السفلي من جسمه. قال له أخوه زياد: دعنا ننفذ تمارين خفيفة تعلّمتها لتنشيط العضلات وإعادة المرونة والجسم إلى نشاطه.",
   steps:["الوقوف باستقامة مع فتح القدمين بعرض الكتفين وتوجيه النظر إلى الأمام.","الشهيق عند النزول للأسفل في وضع القرفصاء وثني الركبتين.","الزفير عند الصعود لأعلى مع رفع اليدين نحو السقف.","العودة لوضعية البداية بخفض الذراعين ببطء والاستقرار."],
   benefit:"تحسين مرونة المفاصل وزيادة قوة التوازن.",
@@ -455,14 +457,14 @@ async function board(){
 function rolesCard(open){return `<details class="card" ${open?"open":""}><summary>العمل الجماعي: أدوار المجموعة</summary>
   <p class="small muted">تمرّنوا كل ٣ سوا على تلفون واحد. بعد كل وضعية بدّلوا الأدوار، لحتى كل واحد يجرّب الأدوار التلاتة.</p>
   <div class="kv">${ROLES.map(r=>`<div><b>${r[0]}:</b><span>${r[1]}</span></div>`).join("")}</div>
-  <p class="small muted">بعد التمرين، كل واحد بيفتح التطبيق عتلفونه وبيكبس «نفّذتها» لياخد نقاطه، ونقاطكن بتنجمع لمجموعتكن.</p></details>`;}
+  <p class="small muted">لما يجي دورك كمنفّذ، شغّل العدّاد عتلفونك إنت لتاخد نقاطك. نقاطكن بتنجمع لمجموعتكن.</p></details>`;}
 function help(){
   const st=[["اكتب اسمك واختار مجموعتك","أول مرة بتفتح التطبيق بيطلب منك اسمك الكامل ومجموعتك. هيك بتطلع نقاطك عند المعلّمة وبلائحة الأبطال."],
    ["اختار الدرس","من الصفحة الرئيسية اكبس على الدرس اللي طلبته المعلّمة. اقرا الهدف، وراجع تنفّس القوّة."],
    ["اقرا السيناريو","بكل وضعية في قصة صغيرة عن حدا تعبان. فكّر شو بيساعده."],
-   ["جاوب عالسؤالين","اختار كل الموانع اللي بتمنع التمرين واكبس «تحقّق»، وبعدين اختار ليش منستعمله. إذا جاوبت صح من أول مرة بتاخد نقاط."],
+   ["جاوب صح عالسؤالين","اختار كل الموانع اللي بتمنع التمرين واكبس «تحقّق»، وبعدين اختار ليش منستعمله. لازم تجاوب صح لينفتح الفيديو، وإذا جاوبت صح من أول مرة بتاخد نقاط."],
    ["شوف الصورة وطريقة الأداء","بعد ما تجاوب بتنفتح الصورة والخطوات. اختار المستوى: سهل، متوسط أو متقدم."],
-   ["شغّل العدّاد ونفّذ","حط التلفون قدّامك، اختار المدة، واكبس «ابدأ». اتبع «شهيق» و«زفير» عالشاشة لآخر ثانية."],
+   ["شغّل العدّاد ونفّذ","حط التلفون قدّامك، اختار المدة، واكبس «ابدأ». اتبع «شهيق» و«زفير» عالشاشة لآخر ثانية. الوضعية اللي بعدها ما بتنفتح إلا بس يخلص العدّاد."],
    ["إذا في وجع","وقّف فورًا واقرا «التعديلات إذا في وجع»، أو اختار المستوى الأسهل. ما تكمّل إذا الوجع استمر."],
    ["حلّ الواجب","بآخر كل درس في واجب منزلي. جاوب، وشوف الحل بعد ما تكتب جوابك."]];
   app.innerHTML=`<div class="view" style="display:flex;flex-direction:column;gap:14px">${topbar("كيف بستعمل التطبيق؟","home")}
@@ -471,7 +473,7 @@ function help(){
    ${rolesCard(true)}
    <section class="card"><span class="eyebrow">قواعد الصف</span><ul class="contra-list">
     <li>تمرّن عأرض نظيفة ومسطّحة، وبعيد عن الأغراض.</li><li>ما تسرّع الحركة، البطء أهم من السرعة.</li>
-    <li>إذا عندك إصابة أو وجع، خبّر المعلّمة قبل ما تتمرّن.</li><li>النقاط على الجهد الحقيقي، فما تكبس «نفّذتها» إذا ما نفّذت.</li></ul></section>
+    <li>إذا عندك إصابة أو وجع، خبّر المعلّمة قبل ما تتمرّن.</li><li>النقاط على الجهد الحقيقي، فما تشغّل العدّاد إذا ما عم تنفّذ.</li></ul></section>
    <button class="btn" data-go="home">فهمت، يلّا نبلّش</button></div>`;
 }
 function home(){
@@ -511,8 +513,9 @@ function lesson(k){
   ${breathCard(false)}
   ${rolesCard(false)}
   <h3>الوضعيات</h3>
-  <div class="poses">${L.poses.map(i=>{const [st,cl]=poseStatus(i);return `<button class="pose-btn" data-go="pose:${i}:${k}">
+  <div class="poses">${L.poses.map((i,n)=>{const locked=n>0&&!(S.poses[L.poses[n-1]]||{}).done;const [st,cl]=locked?["🔒 مقفلة",""]:poseStatus(i);return `<button class="pose-btn ${locked?"lock":""}" ${locked?"disabled":`data-go="pose:${i}:${k}"`}>
     <img src="${IMG[POSES[i].img]}" alt=""><span class="nm">${esc(POSES[i].name)}</span><span class="chip ${cl}">${st}</span></button>`;}).join("")}</div>
+  <p class="small muted">كل وضعية بتنفتح بس تخلّص عدّاد اللي قبلها.</p>
   <button class="btn ghost" data-go="hw:${k}">الواجب المنزلي (${AR(HW[L.id].length)} أسئلة)</button></div>`;
 }
 
@@ -524,23 +527,26 @@ function pose(i,k){
   const cOpts=shuffled([...P.contra.map(t=>({t,ok:true})),...P.distract.map(t=>({t,ok:false}))],i+3);
   const uOpts=shuffled([{t:P.use,ok:true},...P.useD.map(j=>({t:POSES[j].use,ok:false}))],i+11);
   const sel=st.contraSel||[];
+  const contraOk=st.contraDone&&cOpts.every(([o,idx])=>o.ok===sel.includes(idx));
+  const useOk=st.useDone&&uOpts.some(([o,idx])=>idx===st.useSel&&o.ok);
   const stage=(st.contraDone?1:0)+(st.useDone?1:0)+(st.done?1:0);
 
   const contraHTML=cOpts.map(([o,idx])=>{
     let cls="opt",tag="";const on=sel.includes(idx);
-    if(st.contraDone){ if(o.ok&&on){cls+=" good";tag="صح"} else if(!o.ok&&on){cls+=" wrong";tag="مش مانع"} else if(o.ok&&!on){cls+=" miss";tag="فاتك"} }
+    if(st.contraDone){ if(o.ok&&on){cls+=" good";tag="صح"} else if(!o.ok&&on){cls+=" wrong";tag="مش مانع"} }
     else if(on)cls+=" sel";
-    return `<button class="${cls}" data-c="${idx}" ${st.contraDone?"disabled":""} aria-pressed="${on}"><span class="box">${on||(st.contraDone&&o.ok)?"✓":""}</span><span>${esc(o.t)}</span>${tag?`<span class="tag">${tag}</span>`:""}</button>`;}).join("");
+    return `<button class="${cls}" data-c="${idx}" ${st.contraDone?"disabled":""} aria-pressed="${on}"><span class="box">${on?(st.contraDone&&!o.ok?"✗":"✓"):""}</span><span>${esc(o.t)}</span>${tag?`<span class="tag">${tag}</span>`:""}</button>`;}).join("");
   const nCorrect=P.contra.length;
   let contraFb="";
   if(st.contraDone){const perfect=cOpts.every(([o,idx])=>o.ok===sel.includes(idx));
-    contraFb=perfect?`<div class="fb ok">ممتاز! عرفت كل الموانع.</div>`:`<div class="fb bad">قرّبت. شوف الموانع الصح المعلّمة بالأخضر والمنقّطة.</div>`;}
+    contraFb=perfect?`<div class="fb ok">ممتاز! عرفت كل الموانع.</div>`:`<div class="fb bad">${P.contra.filter((_,j)=>!sel.includes(j)).length?"في موانع فاتوك":"في جواب مش مانع"}. جرّب كمان مرة لتشوف الفيديو.</div>`;}
 
   const uHTML=uOpts.map(([o,idx])=>{let cls="opt radio",tag="";const on=st.useSel===idx;
-    if(st.useDone){if(o.ok){cls+=" good";tag="الجواب الصح"}else if(on){cls+=" wrong";tag="لأ"}}
-    return `<button class="${cls}" data-u="${idx}" data-ok="${o.ok?1:0}" ${st.useDone?"disabled":""}><span class="box">${st.useDone&&(o.ok||on)?(o.ok?"✓":"✗"):""}</span><span>${esc(o.t)}</span>${tag?`<span class="tag">${tag}</span>`:""}</button>`;}).join("");
+    const showOk=st.useDone&&o.ok&&on;
+    if(st.useDone){if(showOk){cls+=" good";tag="صح"}else if(on){cls+=" wrong";tag="لأ"}}
+    return `<button class="${cls}" data-u="${idx}" data-ok="${o.ok?1:0}" ${st.useDone?"disabled":""}><span class="box">${st.useDone&&on?(o.ok?"✓":"✗"):""}</span><span>${esc(o.t)}</span>${tag?`<span class="tag">${tag}</span>`:""}</button>`;}).join("");
 
-  const ready=st.contraDone&&st.useDone;
+  const ready=contraOk&&useOk;
   const lv=["سهل","متوسط","متقدم"];
   app.innerHTML=`<div class="view" style="display:flex;flex-direction:column;gap:18px">${topbar("الدرس "+AR(k+1)+" · "+L.title,"lesson:"+k)}
   <div style="display:flex;flex-direction:column;gap:10px">
@@ -553,17 +559,17 @@ function pose(i,k){
     <p class="q">شو الموانع اللي بتمنع أداء هالوضعية؟</p>
     <p class="small muted">اختار كل الأجوبة الصح (في ${AR(nCorrect)}).</p>
     <div class="opts">${contraHTML}</div>
-    ${st.contraDone?contraFb+`<button class="btn ghost" data-act="retryC">جرّب من جديد</button>`:`<button class="btn" data-act="checkC" ${sel.length?"":"disabled"}>تحقّق</button>`}
+    ${st.contraDone?contraFb+(contraOk?"":`<button class="btn ghost" data-act="retryC">جرّب من جديد</button>`):`<button class="btn" data-act="checkC" ${sel.length?"":"disabled"}>تحقّق</button>`}
   </section>
 
   <section class="card"><span class="eyebrow">السؤال ٢</span>
     <p class="q">ليش منستعمل هالتمرين بالحياة؟</p>
     <div class="opts">${uHTML}</div>
-    ${st.useDone?(uOpts.find(([o,idx])=>idx===st.useSel)[0].ok?`<div class="fb ok">صح!</div>`:`<div class="fb bad">الجواب الصح معلّم بالأخضر.</div><button class="btn ghost" data-act="retryU">جرّب من جديد</button>`):""}
+    ${st.useDone?(uOpts.find(([o,idx])=>idx===st.useSel)[0].ok?`<div class="fb ok">صح!</div>`:`<div class="fb bad">غلط. فكّر منيح وجرّب كمان مرة.</div><button class="btn ghost" data-act="retryU">جرّب من جديد</button>`):""}
   </section>
 
   ${ready?`<section class="card"><span class="eyebrow">طريقة الأداء</span>
-    <div class="photo"><img src="${IMG[P.img]}" alt="${esc(P.name)}"></div>
+    ${P.video?`<div class="photo vid"><video controls playsinline preload="metadata" poster="${IMG[P.img]}" src="${P.video}"></video></div>`:`<div class="photo"><img src="${IMG[P.img]}" alt="${esc(P.name)}"></div>`}
     <ol class="steps">${P.steps.map(s=>`<li><span>${esc(s)}</span></li>`).join("")}</ol>
     ${P.warn?`<div class="fb bad small">${esc(P.warn)}</div>`:""}
   </section>
@@ -585,9 +591,9 @@ function pose(i,k){
     <p class="motiv" id="motiv">خلّي التلفون قدّامك، واكبس ابدأ لمّا تكون بالوضعية.</p>
     <div class="btns" style="width:100%"><button class="btn" id="tStart">ابدأ</button><button class="btn ghost" id="tReset">إعادة</button></div>
   </section>
-  ${st.done?`<div class="fb ok">نفّذت هالوضعية.</div>`:`<button class="btn ghost" data-act="done">نفّذتها بدون عدّاد</button>`}
-  <div class="btns">${next!==undefined?`<button class="btn ghost" data-go="pose:${next}:${k}">الوضعية التالية ←</button>`:`<button class="btn ghost" data-go="hw:${k}">للواجب المنزلي ←</button>`}</div>`
-  :`<p class="note">جاوب عالسؤالين لتشوف الصورة وطريقة الأداء.</p>`}
+  ${st.done?`<div class="fb ok">نفّذت هالوضعية.</div>`:""}
+  <div class="btns">${!st.done?`<button class="btn ghost lock" disabled>🔒 خلّص العدّاد لتنتقل ${next!==undefined?"للوضعية التالية":"للواجب"}</button>`:next!==undefined?`<button class="btn" data-go="pose:${next}:${k}">الوضعية التالية ←</button>`:`<button class="btn" data-go="hw:${k}">للواجب المنزلي ←</button>`}</div>`
+  :`<p class="note">🔒 جاوب صح عالسؤالين لتشوف ${P.video?"الفيديو":"الصورة"} وطريقة الأداء.</p>`}
   </div>`;
 
   app.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{const idx=+b.dataset.c;const s=st.contraSel||(st.contraSel=[]);const at=s.indexOf(idx);at>=0?s.splice(at,1):s.push(idx);save();pose(i,k);});
@@ -600,8 +606,8 @@ function pose(i,k){
     const s=st.contraSel||[];const perfect=cOpts.every(([o,idx])=>o.ok===s.includes(idx));
     if(!S.awarded["c"+i]){S.awarded["c"+i]=1;if(perfect)award(10,"عرفت كل الموانع");}
     save();pose(i,k);};
-  if(act("retryC"))act("retryC").onclick=()=>{st.contraDone=false;st.contraSel=[];st.done=false;save();pose(i,k);};
-  if(act("retryU"))act("retryU").onclick=()=>{st.useDone=false;st.useSel=null;st.done=false;save();pose(i,k);};
+  if(act("retryC"))act("retryC").onclick=()=>{st.contraDone=false;st.contraSel=[];save();pose(i,k);};
+  if(act("retryU"))act("retryU").onclick=()=>{st.useDone=false;st.useSel=null;save();pose(i,k);};
   if(act("done"))act("done").onclick=()=>{dailyBonus();st.done=true;logPractice(0);award(5,"نفّذت "+P.name);lessonBonus();save();pose(i,k);};
 
   /* timer */
